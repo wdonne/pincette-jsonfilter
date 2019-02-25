@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonException;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonStructure;
 import javax.json.JsonValue;
 import javax.json.stream.JsonGenerator;
 import net.pincette.util.Pair;
@@ -24,8 +25,11 @@ import net.pincette.util.Pair;
  * @author Werner Donn\u00e9
  */
 public class JsonBuilderGenerator implements JsonGenerator {
+  private Object builder;
   private Deque<Pair<String, Object>> builders = new ArrayDeque<>();
   private String lastName;
+
+  public JsonBuilderGenerator() {}
 
   public JsonBuilderGenerator(final JsonObjectBuilder builder) {
     builders.push(pair(null, builder));
@@ -36,14 +40,16 @@ public class JsonBuilderGenerator implements JsonGenerator {
   }
 
   private static void add(final Object parent, final Pair<String, Object> builder) {
-    if (builder.first != null) {
-      ((JsonObjectBuilder) parent).add(builder.first, build(builder.second));
+    if (parent instanceof JsonObjectBuilder) {
+      if (builder.first != null) {
+        ((JsonObjectBuilder) parent).add(builder.first, build(builder.second));
+      }
     } else {
       ((JsonArrayBuilder) parent).add(build(builder.second));
     }
   }
 
-  private static JsonValue build(final Object builder) {
+  private static JsonStructure build(final Object builder) {
     return builder instanceof JsonObjectBuilder
         ? ((JsonObjectBuilder) builder).build()
         : ((JsonArrayBuilder) builder).build();
@@ -55,6 +61,20 @@ public class JsonBuilderGenerator implements JsonGenerator {
 
   private Optional<JsonArrayBuilder> asArrayBuilder() {
     return Optional.ofNullable(builders.peek()).map(p -> (JsonArrayBuilder) p.second);
+  }
+
+  /**
+   * Use this method only when no builder was passed through a constructor, because in that case
+   * everything is added to that builder.
+   *
+   * @return The created JSON structure.
+   */
+  public JsonStructure build() {
+    if (builder == null) {
+      throw new IllegalStateException("Object or array is not complete");
+    }
+
+    return build(builder);
   }
 
   private void checkNoLastName() {
@@ -170,8 +190,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
     return this;
   }
 
-  private <T> void writeAnonymous(
-      final Consumer<String> objectBuilder, final Runnable arrayBuilder) {
+  private void writeAnonymous(final Consumer<String> objectBuilder, final Runnable arrayBuilder) {
     if (lastName != null) {
       objectBuilder.accept(lastName);
       lastName = null;
@@ -181,9 +200,13 @@ public class JsonBuilderGenerator implements JsonGenerator {
   }
 
   public JsonGenerator writeEnd() {
-    final Pair<String, Object> builder = builders.pop();
+    final Pair<String, Object> bldr = builders.pop();
 
-    Optional.ofNullable(builders.peek()).map(p -> p.second).ifPresent(b -> add(b, builder));
+    Optional.ofNullable(builders.peek()).map(p -> p.second).ifPresent(b -> add(b, bldr));
+
+    if (builders.isEmpty()) {
+      builder = bldr.second;
+    }
 
     return this;
   }
