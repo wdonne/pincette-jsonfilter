@@ -231,6 +231,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
 
   public JsonGenerator writeStartArray() {
     builders.push(pair(lastName, createArrayBuilder()));
+    lastName = null;
 
     return this;
   }
@@ -244,6 +245,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
 
   public JsonGenerator writeStartObject() {
     builders.push(pair(lastName, createObjectBuilder()));
+    lastName = null;
 
     return this;
   }

@@ -1,12 +1,12 @@
 name := """pincette-jsonfilter"""
 organization := "net.pincette"
-version := "0.1.0"
+version := "0.1.1"
 
 scalaVersion := "2.12.4"
 
 libraryDependencies ++= Seq(
   "javax.json" % "javax.json-api" % "1.1.4",
-  "net.pincette" % "pincette-common" % "1.5.3"
+  "net.pincette" % "pincette-common" % "1.5.4"
 )
 
 pomIncludeRepository := { _ => false }
