@@ -2,11 +2,8 @@ package net.pincette.jf;
 
 import static javax.json.Json.createArrayBuilder;
 import static javax.json.Json.createObjectBuilder;
-import static javax.json.Json.createValue;
 import static net.pincette.util.Pair.pair;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
@@ -24,7 +21,7 @@ import net.pincette.util.Pair;
  *
  * @author Werner Donn\u00e9
  */
-public class JsonBuilderGenerator implements JsonGenerator {
+public class JsonBuilderGenerator extends JsonValueGenerator {
   private Object builder;
   private Deque<Pair<String, Object>> builders = new ArrayDeque<>();
   private String lastName;
@@ -83,56 +80,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
     }
   }
 
-  public void close() {
-    // Nothing to close.
-  }
-
-  public void flush() {
-    // Nothing to flush.
-  }
-
-  public JsonGenerator write(final boolean value) {
-    write(value ? JsonValue.TRUE : JsonValue.FALSE);
-
-    return this;
-  }
-
-  public JsonGenerator write(final double value) {
-    write(createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final int value) {
-    write(createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final long value) {
-    write(createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final String value) {
-    write(createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final BigDecimal value) {
-    write(createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final BigInteger value) {
-    write(createValue(value));
-
-    return this;
-  }
-
+  @Override
   public JsonGenerator write(final JsonValue value) {
     writeAnonymous(
         name -> asObjectBuilder().ifPresent(b -> b.add(name, value)),
@@ -141,48 +89,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
     return this;
   }
 
-  public JsonGenerator write(final String name, final boolean value) {
-    write(name, value ? JsonValue.TRUE : JsonValue.FALSE);
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final double value) {
-    write(name, createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final int value) {
-    write(name, createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final long value) {
-    write(name, createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final String value) {
-    write(name, createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final BigDecimal value) {
-    write(name, createValue(value));
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final BigInteger value) {
-    write(name, createValue(value));
-
-    return this;
-  }
-
+  @Override
   public JsonGenerator write(final String name, final JsonValue value) {
     checkNoLastName();
     asObjectBuilder().ifPresent(b -> b.add(name, value));
@@ -199,6 +106,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
     }
   }
 
+  @Override
   public JsonGenerator writeEnd() {
     final Pair<String, Object> bldr = builders.pop();
 
@@ -211,24 +119,28 @@ public class JsonBuilderGenerator implements JsonGenerator {
     return this;
   }
 
+  @Override
   public JsonGenerator writeKey(final String name) {
     lastName = name;
 
     return this;
   }
 
+  @Override
   public JsonGenerator writeNull() {
     write(JsonValue.NULL);
 
     return this;
   }
 
+  @Override
   public JsonGenerator writeNull(final String name) {
     write(name, JsonValue.NULL);
 
     return this;
   }
 
+  @Override
   public JsonGenerator writeStartArray() {
     builders.push(pair(lastName, createArrayBuilder()));
     lastName = null;
@@ -236,6 +148,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
     return this;
   }
 
+  @Override
   public JsonGenerator writeStartArray(final String name) {
     checkNoLastName();
     builders.push(pair(name, createArrayBuilder()));
@@ -243,6 +156,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
     return this;
   }
 
+  @Override
   public JsonGenerator writeStartObject() {
     builders.push(pair(lastName, createObjectBuilder()));
     lastName = null;
@@ -250,6 +164,7 @@ public class JsonBuilderGenerator implements JsonGenerator {
     return this;
   }
 
+  @Override
   public JsonGenerator writeStartObject(final String name) {
     checkNoLastName();
     builders.push(pair(name, createObjectBuilder()));

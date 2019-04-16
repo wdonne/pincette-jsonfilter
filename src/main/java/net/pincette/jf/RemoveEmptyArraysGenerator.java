@@ -1,6 +1,5 @@
 package net.pincette.jf;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 import javax.json.JsonValue;
 import javax.json.stream.JsonGenerator;

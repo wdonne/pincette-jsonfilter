@@ -1,9 +1,5 @@
 package net.pincette.jf;
 
-import static javax.json.Json.createValue;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Optional;
 import javax.json.JsonException;
 import javax.json.JsonValue;
@@ -12,20 +8,19 @@ import javax.json.stream.JsonGenerator;
 /**
  * A filter for <code>JsonGenerators</code>. You can use it as follows:
  *
- * <p>{@code new JsonGeneratorFilter()
- * .thenApply(new JsonGeneratorFilter())
- * ...
- * thenApply(new JsonGenerator())}</p>
+ * <p>{@code new JsonGeneratorFilter() .thenApply(new JsonGeneratorFilter()) ... thenApply(new
+ * JsonGenerator())}
  *
- * <p>The last one may be a plain <code>JsonGenerator</code>. The result of the entire expression
- * is the first filter.</p>
+ * <p>The last one may be a plain <code>JsonGenerator</code>. The result of the entire expression is
+ * the first filter.
  *
- * <p>The value writers in this class call the variants with the <code>JsonValue</code> type.</p>
+ * <p>The value writers in this class call the variants with the <code>JsonValue</code> type.
  *
  * @author Werner Donn\u00e9
  */
-public class JsonGeneratorFilter implements JsonGenerator {
+public class JsonGeneratorFilter extends JsonValueGenerator implements JsonGenerator {
   private JsonGenerator next;
+  private JsonGenerator saved;
 
   public void close() {
     Optional.ofNullable(next).ifPresent(JsonGenerator::close);
@@ -35,6 +30,50 @@ public class JsonGeneratorFilter implements JsonGenerator {
     Optional.ofNullable(next).ifPresent(JsonGenerator::flush);
   }
 
+  /**
+   * Causes all writes to go to <code>accumulator</code> instead of the next element in the filter
+   * chain.
+   *
+   * @param accumulator the given accumulator.
+   */
+  protected void insertAccumulator(final JsonGenerator accumulator) {
+    saved = next;
+    next = accumulator;
+  }
+
+  /**
+   * A filter element may insert filters of its own, which causes all writes to first through them
+   * before going to the original next filter element.
+   *
+   * @param filter
+   * @return This filter element.
+   */
+  protected JsonGeneratorFilter insertFilter(final JsonGeneratorFilter filter) {
+    filter.next = this.next;
+    this.next = filter;
+
+    return this;
+  }
+
+  /**
+   * Stops all writes to go to the inserted accumulator. This will throw an exception if no
+   * accumulator was inserted.
+   */
+  protected void removeAccumulator() {
+    if (saved == null) {
+      throw new JsonException("No accumulator was inserted");
+    }
+
+    next = saved;
+    saved = null;
+  }
+
+  /**
+   * Appends a generator to a filter chain.
+   *
+   * @param next the next filter element or generator.
+   * @return The filter chain.
+   */
   public JsonGeneratorFilter thenApply(final JsonGenerator next) {
     if (this.next == null) {
       this.next = next;
@@ -49,121 +88,9 @@ public class JsonGeneratorFilter implements JsonGenerator {
     return this;
   }
 
-  public JsonGenerator write(final boolean value) {
-    if (next != null) {
-      write(value ? JsonValue.TRUE : JsonValue.FALSE);
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final double value) {
-    if (next != null) {
-      write(createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final int value) {
-    if (next != null) {
-      write(createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final long value) {
-    if (next != null) {
-      write(createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final String value) {
-    if (next != null) {
-      write(createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final BigDecimal value) {
-    if (next != null) {
-      write(createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final BigInteger value) {
-    if (next != null) {
-      write(createValue(value));
-    }
-
-    return this;
-  }
-
   public JsonGenerator write(final JsonValue value) {
     if (next != null) {
       next.write(value);
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final boolean value) {
-    if (next != null) {
-      write(name, value ? JsonValue.TRUE : JsonValue.FALSE);
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final double value) {
-    if (next != null) {
-      write(name, createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final int value) {
-    if (next != null) {
-      write(name, createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final long value) {
-    if (next != null) {
-      write(name, createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final String value) {
-    if (next != null) {
-      write(name, createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final BigDecimal value) {
-    if (next != null) {
-      write(name, createValue(value));
-    }
-
-    return this;
-  }
-
-  public JsonGenerator write(final String name, final BigInteger value) {
-    if (next != null) {
-      write(name, createValue(value));
     }
 
     return this;
