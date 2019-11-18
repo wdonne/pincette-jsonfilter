@@ -25,59 +25,44 @@ public class JacksonParser implements JsonParser {
     this.parser = parser;
   }
 
-  @Override
   public void close() {
     tryToDoRethrow(parser::close);
   }
 
-  @Override
   public BigDecimal getBigDecimal() {
     return tryToGetRethrow(parser::getDecimalValue).orElse(null);
   }
 
-  @Override
   public int getInt() {
     return tryToGetRethrow(parser::getIntValue).orElse(-1);
   }
 
-  @Override
   public JsonLocation getLocation() {
     return null;
   }
 
-  @Override
   public long getLong() {
     return tryToGetRethrow(parser::getLongValue).orElse(-1L);
   }
 
-  @Override
   public String getString() {
     return tryToGetRethrow(parser::getText).orElse(null);
   }
 
-  @Override
   public boolean hasNext() {
-    return event != null || next() != null;
+    return event != null || (event = nextEvent()) != null;
   }
 
-  @Override
   public boolean isIntegralNumber() {
     return event != null && token == VALUE_NUMBER_INT;
   }
 
-  @Override
   public Event next() {
-    if (event != null) {
-      final Event result = event;
+    final Event result = event != null ? event : nextEvent();
 
-      event = null;
+    event = null;
 
-      return result;
-    }
-
-    event = nextEvent();
-
-    return event;
+    return result;
   }
 
   private Event nextEvent() {

@@ -204,7 +204,14 @@ public class Util {
     return !parser.hasNext() ? empty() : contents.apply(parser.next());
   }
 
-  private static Stream<JsonValue> valueStream(final JsonParser parser) {
+  /**
+   * Returns a stream of values in an array. The state must be such that a value will start after
+   * it.
+   *
+   * @param parser the given parser.
+   * @return The value stream.
+   */
+  public static Stream<JsonValue> valueStream(final JsonParser parser) {
     return net.pincette.util.StreamUtil.stream(
         new Iterator<JsonValue>() {
           Event nextEvent;

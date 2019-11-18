@@ -30,17 +30,14 @@ public class JacksonGenerator implements JsonGenerator {
     this.generator = generator;
   }
 
-  @Override
   public void close() {
     tryToDoRethrow(generator::close);
   }
 
-  @Override
   public void flush() {
     tryToDoRethrow(generator::flush);
   }
 
-  @Override
   public JsonGenerator write(final String name, final JsonValue value) {
     writeKey(name);
     write(value);
@@ -48,14 +45,12 @@ public class JacksonGenerator implements JsonGenerator {
     return this;
   }
 
-  @Override
   public JsonGenerator write(final String name, final String value) {
     tryToDoRethrow(() -> generator.writeStringField(name, value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final String name, final BigInteger value) {
     writeKey(name);
     write(value);
@@ -63,42 +58,36 @@ public class JacksonGenerator implements JsonGenerator {
     return this;
   }
 
-  @Override
   public JsonGenerator write(final String name, final BigDecimal value) {
     tryToDoRethrow(() -> generator.writeNumberField(name, value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final String name, final int value) {
     tryToDoRethrow(() -> generator.writeNumberField(name, value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final String name, final long value) {
     tryToDoRethrow(() -> generator.writeNumberField(name, value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final String name, final double value) {
     tryToDoRethrow(() -> generator.writeNumberField(name, value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final String name, final boolean value) {
     tryToDoRethrow(() -> generator.writeBooleanField(name, value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final JsonValue value) {
     switch (value.getValueType()) {
       case ARRAY:
@@ -120,47 +109,40 @@ public class JacksonGenerator implements JsonGenerator {
     }
   }
 
-  @Override
   public JsonGenerator write(final String value) {
     tryToDoRethrow(() -> generator.writeString(value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final BigDecimal value) {
     tryToDoRethrow(() -> generator.writeNumber(value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final BigInteger value) {
     tryToDoRethrow(() -> generator.writeNumber(value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final int value) {
     tryToDoRethrow(() -> generator.writeNumber(value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final long value) {
     tryToDoRethrow(() -> generator.writeNumber(value));
 
     return this;
   }
 
-  @Override
   public JsonGenerator write(final double value) {
     return this;
   }
 
-  @Override
   public JsonGenerator write(final boolean value) {
     tryToDoRethrow(() -> generator.writeBoolean(value));
 
@@ -187,7 +169,6 @@ public class JacksonGenerator implements JsonGenerator {
     return this;
   }
 
-  @Override
   public JsonGenerator writeEnd() {
     switch (stack.pop()) {
       case ARRAY:
@@ -201,28 +182,24 @@ public class JacksonGenerator implements JsonGenerator {
     }
   }
 
-  @Override
   public JsonGenerator writeKey(final String name) {
     tryToDoRethrow(() -> generator.writeFieldName(name));
 
     return this;
   }
 
-  @Override
   public JsonGenerator writeNull(final String name) {
     tryToDoRethrow(() -> generator.writeNullField(name));
 
     return this;
   }
 
-  @Override
   public JsonGenerator writeNull() {
     tryToDoRethrow(generator::writeNull);
 
     return this;
   }
 
-  @Override
   public JsonGenerator writeStartArray() {
     tryToDoRethrow(generator::writeStartArray);
     stack.push(ARRAY);
@@ -230,7 +207,6 @@ public class JacksonGenerator implements JsonGenerator {
     return this;
   }
 
-  @Override
   public JsonGenerator writeStartArray(final String name) {
     writeKey(name);
     writeStartArray();
@@ -238,7 +214,6 @@ public class JacksonGenerator implements JsonGenerator {
     return this;
   }
 
-  @Override
   public JsonGenerator writeStartObject() {
     tryToDoRethrow(generator::writeStartObject);
     stack.push(OBJECT);
@@ -246,7 +221,6 @@ public class JacksonGenerator implements JsonGenerator {
     return this;
   }
 
-  @Override
   public JsonGenerator writeStartObject(final String name) {
     writeKey(name);
     writeStartObject();

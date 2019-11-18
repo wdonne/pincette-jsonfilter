@@ -7,7 +7,7 @@
   <groupId>net.pincette</groupId>
   <artifactId>pincette-jsonfilter</artifactId>
   <packaging>jar</packaging>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
   <name>pincette-jsonfilter</name>
   <description>JSON filter utilities</description>
   <url>https://github.com/wdonne/pincette-jsonfilter</url>
